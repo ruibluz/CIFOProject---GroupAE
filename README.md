@@ -1,9 +1,9 @@
 # ⚽ Sports League Optimization: Project
-**Computational Intelligence For Optimization**
+### Computational Intelligence For Optimization
 
-Spring Semester 24/25 - NOVA IMS
+NOVA IMS - Spring Semester 24/25
 
-# 👥 Team (Group AE)
+# 👥 Team Members (Group AE)
 - Diogo Duarte, 20240525
 - Rodrigo Sardinha, 202xxxxx
 - Rui Luz, 202xxxxx
