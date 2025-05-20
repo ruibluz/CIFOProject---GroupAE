@@ -1,7 +1,7 @@
 # ⚽ Sports League Optimization: Project
 **Computational Intelligence For Optimization**
 
-24/25 Spring Semester - NOVA IMS
+Spring Semester 24/25 - NOVA IMS
 
 # 👥 Team (Group AE)
 - Diogo Duarte, 20240525
