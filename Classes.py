@@ -69,11 +69,12 @@ class Team:
 
 # ====== LEAGUE INDIVIDUAL CLASS ======
 class LeagueIndividual:
-    def __init__(self, players_by_position, team_structure, budget_limit, league=None):
+    def __init__(self, players_by_position, team_structure, budget_limit, num_teams, league=None):
         
         self.players_by_position = players_by_position
         self.team_structure = team_structure
         self.budget_limit = budget_limit
+        self.num_teams = num_teams
 
         self.league = league if league is not None else self._generate_league()
         self.fitness = self.evaluate_fitness()
@@ -83,7 +84,7 @@ class LeagueIndividual:
         all_players = deepcopy(self.players_by_position)
         used_names = set()
 
-        for _ in range(NUM_TEAMS):
+        for _ in range(self.num_teams):
             team_players = []
 
             for pos, count in self.team_structure.items():
