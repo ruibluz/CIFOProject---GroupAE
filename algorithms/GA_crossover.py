@@ -1,11 +1,14 @@
 import random
 from copy import deepcopy
-from Classes import Player, Team, LeagueIndividual
+from Classes import Team, LeagueIndividual
 
-# # ====== CROSSOVER BY TEAM ======
-
+# ====== CROSSOVER BY TEAM ======
 def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tuple:
-    crossover_point = random.randint(1, NUM_TEAMS - 1)
+    num_teams = len(parent1.league)
+    team_structure = parent1.team_structure
+    players_by_position = parent1.players_by_position
+    budget = parent1.budget_limit
+    crossover_point = random.randint(1, num_teams - 1)
 
     def build_child(p1: LeagueIndividual, p2: LeagueIndividual) -> LeagueIndividual:
         child_teams = []
@@ -19,40 +22,40 @@ def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tupl
         # Add valid teams from parent 2 without duplicate players
         for team in p2.league:
             names = [player.name for player in team.players]
-            if len(child_teams) < NUM_TEAMS and all(name not in used_names for name in names):
+            if len(child_teams) < num_teams and all(name not in used_names for name in names):
                 child_teams.append(team)
                 used_names.update(names)
 
-        # If needed, generate new teams to complete the league
-        while len(child_teams) < NUM_TEAMS:
+        # Generate new teams to complete the league
+        while len(child_teams) < num_teams:
             team_players = []
-            for position, count in TEAM_STRUCTURE.items():
-                available = [
-                    p for p in players_by_position[position]
-                    if p.name not in used_names
-                ]
+            for position, count in team_structure.items():
+                available = [p for p in players_by_position[position] if p.name not in used_names]
                 if len(available) < count:
-                    break  # not enough players to form a valid team
+                    break
                 selected = random.sample(available, count)
                 team_players.extend(selected)
 
             new_team = Team(team_players)
-            if new_team.is_valid(TEAM_STRUCTURE, BUDGET_LIMIT):
+            if new_team.is_valid(team_structure, budget):
                 child_teams.append(new_team)
                 used_names.update(p.name for p in team_players)
 
-        return LeagueIndividual(players_by_position, TEAM_STRUCTURE, BUDGET_LIMIT, league=child_teams)
+        return LeagueIndividual(players_by_position, team_structure, budget, num_teams, league=child_teams)
 
     child1 = build_child(parent1, parent2)
     child2 = build_child(parent2, parent1)
     return child1, child2
 
 
-
-# # ====== CROSSOVER BY POSITION ======
+# ====== CROSSOVER BY POSITION ======
 def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tuple:
-    # Step 1: Collect all players by position from both parents
-    combined_by_position = {pos: [] for pos in TEAM_STRUCTURE}
+    team_structure = parent1.team_structure
+    players_by_position = parent1.players_by_position
+    budget = parent1.budget_limit
+    num_teams = len(parent1.league)
+
+    combined_by_position = {pos: [] for pos in team_structure}
     used_names = set()
 
     for individual in [parent1, parent2]:
@@ -62,9 +65,8 @@ def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> 
                     combined_by_position[player.position].append(player)
                     used_names.add(player.name)
 
-    # Step 2: Shuffle each position group and split into two sets
-    child1_pool = {pos: [] for pos in TEAM_STRUCTURE}
-    child2_pool = {pos: [] for pos in TEAM_STRUCTURE}
+    child1_pool = {pos: [] for pos in team_structure}
+    child2_pool = {pos: [] for pos in team_structure}
 
     for pos, players in combined_by_position.items():
         random.shuffle(players)
@@ -72,15 +74,11 @@ def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> 
         child1_pool[pos] = players[:midpoint]
         child2_pool[pos] = players[midpoint:]
 
-    # Step 3: Fill up missing players in each pool if needed
     def fill_position_pool(pool):
-        for pos, required_count in TEAM_STRUCTURE.items():
-            total_needed = required_count * NUM_TEAMS
+        for pos, required_count in team_structure.items():
+            total_needed = required_count * num_teams
             current_count = len(pool[pos])
-            available = [
-                p for p in players_by_position[pos]
-                if p.name not in {x.name for x in pool[pos]}
-            ]
+            available = [p for p in players_by_position[pos] if p.name not in {x.name for x in pool[pos]}]
             if current_count < total_needed:
                 extra = random.sample(available, total_needed - current_count)
                 pool[pos].extend(extra)
@@ -89,31 +87,29 @@ def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> 
     child1_pool = fill_position_pool(child1_pool)
     child2_pool = fill_position_pool(child2_pool)
 
-    # Step 4: Build teams from the position pools
     def build_league_from_pool(pool) -> LeagueIndividual:
         all_players = deepcopy(pool)
         league = []
         used_names = set()
 
-        for _ in range(NUM_TEAMS):
+        for _ in range(num_teams):
             team_players = []
-
-            for pos, count in TEAM_STRUCTURE.items():
+            for pos, count in team_structure.items():
                 candidates = [p for p in all_players[pos] if p.name not in used_names]
                 if len(candidates) < count:
-                    break  # cannot build a valid team
+                    break
                 selected = random.sample(candidates, count)
                 team_players.extend(selected)
                 used_names.update(p.name for p in selected)
                 all_players[pos] = [p for p in all_players[pos] if p.name not in used_names]
 
             team = Team(team_players)
-            if not team.is_valid(TEAM_STRUCTURE, BUDGET_LIMIT):
-                return LeagueIndividual(players_by_position, TEAM_STRUCTURE, BUDGET_LIMIT, league=None)
+            if not team.is_valid(team_structure, budget):
+                return LeagueIndividual(players_by_position, team_structure, budget, num_teams, league=None)
 
             league.append(team)
 
-        return LeagueIndividual(players_by_position, TEAM_STRUCTURE, BUDGET_LIMIT, league=league)
+        return LeagueIndividual(players_by_position, team_structure, budget, num_teams, league=league)
 
     child1 = build_league_from_pool(child1_pool)
     child2 = build_league_from_pool(child2_pool)
