@@ -9,6 +9,7 @@ def mutation_swap_players(individual):
     For each team, attempts to swap one player (same position) with another team.
     Ensures validity (structure, salary, no duplicates).
     Returns a mutated individual or the original if no valid swaps occurred.
+
     """
     new_indiv = copy.deepcopy(individual)
     team_count = len(new_indiv.league)
@@ -140,3 +141,80 @@ def mutation_regenerate_team(individual):
     # Success — mutation completed
     new_indiv.fitness = new_indiv.evaluate_fitness()
     return new_indiv, True
+
+
+# ====== MUTATION BALANCE TEAMS ======
+def mutation_balance_teams(individual):
+    """
+    Attempts to swap one player between the strongest and weakest teams 
+    (teams with highest and lowest average skill)
+    to reduce the standard deviation of average skill.
+    Applies the change only if fitness improves.
+
+    """
+    new_indiv = copy.deepcopy(individual)
+    teams = new_indiv.league
+    team_structure = new_indiv.team_structure
+    budget = new_indiv.budget_limit
+
+    # identify team with highest and lowest average skill
+    team_skills = [(i, team.avg_skill()) for i, team in enumerate(teams)]
+    team_skills.sort(key=lambda x: x[1])  # ascending order
+
+    low_index = team_skills[0][0]
+    high_index = team_skills[-1][0]
+
+    team_low = teams[low_index]
+    team_high = teams[high_index]
+
+    max_attempts = 20
+    for _ in range(max_attempts):
+        # Find common positions
+        positions_low = {p.position for p in team_low.players}
+        positions_high = {p.position for p in team_high.players}
+        common_positions = list(positions_low.intersection(positions_high))
+        if not common_positions:
+            return individual  # no compatible swap possible
+
+        pos = random.choice(common_positions)
+
+        # sort to encourage meaningful skill transfer
+        candidates_low = sorted([p for p in team_low.players if p.position == pos], key=lambda p: p.skill)
+        candidates_high = sorted([p for p in team_high.players if p.position == pos], key=lambda p: -p.skill)
+
+        for pl in candidates_low:
+            for ph in candidates_high:
+                # Try swapping player low and player high
+                new_team_low_players = [ph if p.name == pl.name else p for p in team_low.players]
+                new_team_high_players = [pl if p.name == ph.name else p for p in team_high.players]
+
+                new_team_low = Team(new_team_low_players)
+                new_team_high = Team(new_team_high_players)
+
+                # Check validity
+                if not new_team_low.is_valid(team_structure, budget):
+                    continue
+                if not new_team_high.is_valid(team_structure, budget):
+                    continue
+
+                # Check for duplicates in the league
+                temp_league = new_indiv.league[:]
+                temp_league[low_index] = new_team_low
+                temp_league[high_index] = new_team_high
+
+                all_names = [p.name for t in temp_league for p in t.players]
+                if len(all_names) != len(set(all_names)):
+                    continue  # duplicate detected
+
+                # Check if fitness improves
+                temp_indiv = copy.deepcopy(new_indiv)
+                temp_indiv.league[low_index] = new_team_low
+                temp_indiv.league[high_index] = new_team_high
+                new_fitness = temp_indiv.evaluate_fitness()
+
+                if new_fitness < new_indiv.fitness:
+                    # Accept the mutation
+                    temp_indiv.fitness = new_fitness
+                    return temp_indiv
+
+    return individual  # no improving swap found
