@@ -2,6 +2,7 @@ import random
 import copy
 from Classes import Team
 
+# ====== MUTATION SWAP PLAYERS ======
 def mutation_swap_players(individual):
     """
     Performs one swap per team in the League (Individual):
@@ -63,3 +64,79 @@ def mutation_swap_players(individual):
         return new_indiv
     else:
         return individual
+
+
+# ===== MUTATION REGENERATE TEAM ======
+def mutation_regenerate_team(individual):
+    """
+    Regenerates one team by:
+    1. Removing a random team x
+    2. Extracting 7 position-respecting players from the other teams
+    3. Replacing the removed team with those players
+    4. Redistributing the removed players back into the other 4 teams
+
+    """
+    new_indiv = copy.deepcopy(individual)
+    team_structure = new_indiv.team_structure
+    budget = new_indiv.budget_limit
+    num_teams = len(new_indiv.league)
+
+    # select random team x
+    team_x_index = random.randint(0, num_teams - 1)
+    team_x = new_indiv.league[team_x_index]
+    team_x_players = team_x.players  # 7 players to redistribute later
+
+    # build a pool of players from the other 4 teams
+    donor_teams = [i for i in range(num_teams) if i != team_x_index]
+    donor_pool = {pos: [] for pos in team_structure}
+    for i in donor_teams:
+        for p in new_indiv.league[i].players:
+            donor_pool[p.position].append((p, i))  # keep track of which team the player comes from
+
+    # select 7 new players for team x (by position)
+    selected_new_players = []
+    selected_indices = {i: set() for i in donor_teams}
+    for pos, count in team_structure.items():
+        candidates = [entry for entry in donor_pool[pos] if entry[0].name not in [p.name for p in selected_new_players]]
+        if len(candidates) < count:
+            return individual, False  # not enough available players
+        picks = random.sample(candidates, count)
+        selected_new_players.extend([p for p, _ in picks])
+        for p, idx in picks:
+            selected_indices[idx].add(p.name)  # mark as used
+
+    # replace team x with selected players
+    new_team_x = Team(selected_new_players)
+    if not new_team_x.is_valid(team_structure, budget):
+        return individual, False  # Invalid team
+
+    new_indiv.league[team_x_index] = new_team_x
+
+    # redistribute original team_x players into donor teams
+    to_redistribute = {pos: [] for pos in team_structure}
+    for p in team_x_players:
+        to_redistribute[p.position].append(p)
+
+    # rebuild each donor team with updated players
+    for i in donor_teams:
+        team = new_indiv.league[i]
+        remaining = [p for p in team.players if p.name not in selected_indices[i]]
+        slots = {pos: team_structure[pos] - sum(1 for p in remaining if p.position == pos) for pos in team_structure}
+
+        added = []
+        for pos, count in slots.items():
+            available = to_redistribute[pos]
+            if len(available) < count:
+                return individual, False  # Not enough players to refill team
+            chosen = random.sample(available, count)
+            added.extend(chosen)
+            to_redistribute[pos] = [p for p in available if p.name not in [x.name for x in chosen]]
+
+        rebuilt = Team(remaining + added)
+        if not rebuilt.is_valid(team_structure, budget):
+            return individual, False  # Reconstructed team invalid
+        new_indiv.league[i] = rebuilt
+
+    # Success — mutation completed
+    new_indiv.fitness = new_indiv.evaluate_fitness()
+    return new_indiv, True
