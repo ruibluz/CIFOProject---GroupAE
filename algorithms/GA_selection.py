@@ -8,6 +8,12 @@ def sel_roulette(population, fitness, num=1):
         population (list): The population of individuals.
         fitness (list): The fitness values of the individuals in the population.
         num (int): The number of individuals to select.
+
+    Returns:
+        list: A list of selected individuals.
+
+    Raises:
+        ValueError: If the population and fitness lists are not of the same length.
     """
 
     # P("Selecting individual i") = fitness(i) / sum(fitness(j) for j in population) -> Maximization
@@ -29,6 +35,12 @@ def sel_rank(population, fitness, num=1):
         population (list): The population of individuals.
         fitness (list): The fitness values of the individuals in the population.
         num (int): The number of individuals to select.
+
+    Returns:
+        list: A list of selected individuals.
+
+    Raises:
+        ValueError: If the population and fitness lists are not of the same length.
     """
     # Sort the population by fitness
     sorted_pop = sorted(zip(population, fitness), key=lambda x: x[1], reverse=True) # Starts on Rank 1 for the worst fitness, and goes up to Rank n for the best fitness
@@ -49,6 +61,13 @@ def sel_tournament(population, fitness, k, num=1):
         fitness (list): The fitness values of the individuals in the population.
         k (int): The number of individuals in each tournament, this is, tournament size.
         num (int): The number of individuals to select.
+
+    Returns:
+        list: A list of selected individuals.
+
+    Raises:
+        ValueError: If the population and fitness lists are not of the same length.
+        ValueError: If k is greater than the population size.
     """
     selected = []
     

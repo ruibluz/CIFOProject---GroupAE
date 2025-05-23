@@ -4,15 +4,40 @@ from utils.Classes import Team, LeagueIndividual
 
 # ====== CROSSOVER BY TEAM ======
 def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tuple:
-    num_teams = len(parent1.league)
-    team_structure = parent1.team_structure
+
+    """
+    Performs team crossover between two parent LeagueIndividuals.
+
+    This operator operates by creating a child by selecting a random
+    number of teams from the first parent and filling the rest with teams
+    from the second parent. It ensures that the resulting child is valid
+    by checking for duplicates and ensuring that the team structure is
+    respected. 
+    Only returns valid children.
+
+    Parameters:
+        parent1 (LeagueIndividual): The first parent individual.
+        parent2 (LeagueIndividual): The second parent individual.
+    
+    Returns:
+        tuple: A tuple containing two child (offsprings) LeagueIndividuals, 
+        of the same type as the parents.
+
+    Raises:
+        ValueError: If a valid child cannot be generated after multiple attempts.
+    """
+
+    # Extracting necessary information from the parents
+    num_teams = len(parent1.league) 
+    team_structure = parent1.team_structure 
     players_by_position = parent1.players_by_position
     budget = parent1.budget_limit
     max_attempts = 100
-
+    
+    # Function to build a valid child
     def build_valid_child(p1: LeagueIndividual, p2: LeagueIndividual) -> LeagueIndividual:
         for _ in range(max_attempts):
-            crossover_point = random.randint(1, num_teams - 1)
+            crossover_point = random.randint(1, num_teams - 1) # Random crossover point
             child_teams = []
             used_names = set()
 
@@ -54,7 +79,7 @@ def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tupl
     child2 = build_valid_child(parent2, parent1)
 
     if child1 is None or child2 is None:
-        raise ValueError("❌ Could not generate valid children after multiple attempts (team crossover).")
+        raise ValueError("Could not generate valid children after multiple attempts (team crossover).")
 
     return child1, child2
 
@@ -62,17 +87,41 @@ def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tupl
 
 # ====== CROSSOVER BY POSITION ======
 def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tuple:
+
+    """
+
+    Performs position crossover between two parent LeagueIndividuals.
+    Mixes players from both parents accross all teams. Builds a pool of
+    players from both parents  and samples from it to create a child.
+    Ensuring that the resulting child is valid and respects the 
+    team structure and budget constraints.
+
+    Parameters:
+        parent1 (LeagueIndividual): The first parent individual.
+        parent2 (LeagueIndividual): The second parent individual.
+
+    Returns:
+        tuple: A tuple containing two child (offsprings) LeagueIndividuals, 
+        of the same type as the parents.
+
+    Raises:
+        ValueError: If a valid child cannot be generated after multiple attempts.
+    """
+
+    # Extracting necessary information from the parents
     team_structure = parent1.team_structure
     players_by_position = parent1.players_by_position
     budget = parent1.budget_limit
     num_teams = len(parent1.league)
     max_attempts = 100
 
+    # Function to build a valid child
     def build_valid_child():
         for _ in range(max_attempts):
             combined_by_position = {pos: [] for pos in team_structure}
             used_names = set()
 
+            # Combine players from both parents by position
             for individual in [parent1, parent2]:
                 for team in individual.league:
                     for player in team.players:
@@ -80,6 +129,7 @@ def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> 
                             combined_by_position[player.position].append(player)
                             used_names.add(player.name)
 
+            # Shuffle and split players into child pool
             child_pool = {pos: [] for pos in team_structure}
             for pos, players in combined_by_position.items():
                 random.shuffle(players)
@@ -98,6 +148,7 @@ def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> 
             league = []
             used_names = set()
 
+            # Create new teams
             for _ in range(num_teams):
                 team_players = []
                 for pos, count in team_structure.items():
@@ -123,6 +174,6 @@ def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> 
     child2 = build_valid_child()
 
     if child1 is None or child2 is None:
-        raise ValueError("❌ Could not generate valid children after multiple attempts.")
+        raise ValueError("Could not generate valid children after multiple attempts.")
 
     return child1, child2
