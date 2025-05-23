@@ -1,6 +1,6 @@
 import random
 from copy import deepcopy
-from Classes import Team, LeagueIndividual
+from utils.Classes import Team, LeagueIndividual
 
 # ====== CROSSOVER BY TEAM ======
 def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tuple:

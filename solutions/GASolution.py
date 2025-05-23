@@ -1,5 +1,5 @@
-from solution import Solution
-from Classes import LeagueIndividual
+from solutions.solution import Solution
+from utils.Classes import LeagueIndividual
 
 class GASolution(Solution):
     def __init__(self, individual: LeagueIndividual):
@@ -32,7 +32,7 @@ class GASolution(Solution):
 
     def crossover(self, other, crossover_fn):
         """
-        Applies a crossover function to two GASolutions.
+        Applies a crossover function to two GASolutions (2 LeagueIndividual).
         Returns two new GASolutions (offspring).
         """
         child1, child2 = crossover_fn(self.individual, other.individual)

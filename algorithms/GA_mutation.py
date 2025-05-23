@@ -1,6 +1,6 @@
 import random
 import copy
-from Classes import Team
+from utils.Classes import Team
 
 # ====== MUTATION SWAP PLAYERS ======
 def mutation_swap_players(individual, max_attempts=100):
