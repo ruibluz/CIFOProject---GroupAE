@@ -2,7 +2,7 @@ import random
 from copy import deepcopy
 from utils.Classes import Team, LeagueIndividual
 
-# ====== CROSSOVER BY TEAM ======
+# CROSSOVER BY TEAM
 def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tuple:
 
     """
@@ -85,7 +85,7 @@ def team_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tupl
 
 
 
-# ====== CROSSOVER BY POSITION ======
+# CROSSOVER BY POSITION
 def position_crossover(parent1: LeagueIndividual, parent2: LeagueIndividual) -> tuple:
 
     """

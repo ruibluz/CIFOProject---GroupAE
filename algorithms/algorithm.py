@@ -4,7 +4,7 @@ from copy import deepcopy
 from solutions.GASolution import GASolution
 from utils.Classes import LeagueIndividual
 
-# === POPULATION GENERATION ===
+# POPULATION GENERATION
 def generate_initial_population(size, players_by_position, team_structure, budget_limit, num_teams):
 
     """
@@ -31,7 +31,7 @@ def generate_initial_population(size, players_by_position, team_structure, budge
 
     return population
 
-# === MAIN GENETIC ALGORITHM FUNCTION ===
+# MAIN GENETIC ALGORITHM FUNCTION
 def genetic_algorithm(
     players_by_position, 
     team_structure, 

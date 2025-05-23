@@ -2,7 +2,7 @@ import random
 import copy
 from utils.Classes import Team
 
-# ====== MUTATION SWAP PLAYERS ======
+# MUTATION SWAP PLAYERS
 def mutation_swap_players(individual, max_attempts=100):
 
     """
@@ -75,7 +75,7 @@ def mutation_swap_players(individual, max_attempts=100):
 
 
 
-# ===== MUTATION REGENERATE TEAM ======
+# MUTATION REGENERATE TEAM
 def mutation_regenerate_team(individual, max_attempts=100):
     """
     Regenerates one team by:
@@ -173,7 +173,7 @@ def mutation_regenerate_team(individual, max_attempts=100):
 
 
 
-# ====== MUTATION BALANCE TEAMS ======
+# MUTATION BALANCE TEAMS
 def mutation_balance_teams(individual, max_attempts=100):
     """
     Attempts to swap one player between the strongest and weakest teams 
