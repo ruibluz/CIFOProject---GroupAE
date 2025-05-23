@@ -1,4 +1,4 @@
-# ⚽ Sports League Optimization: Project
+# ⚽ Sports League Optimization using Genetic Algorithms
 ### Computational Intelligence For Optimization
 
 NOVA IMS - Spring Semester 24/25
