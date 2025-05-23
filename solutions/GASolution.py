@@ -4,7 +4,15 @@ from utils.Classes import LeagueIndividual
 class GASolution(Solution):
     def __init__(self, individual: LeagueIndividual):
         """
-        Wraps a LeagueIndividual instance as a GA solution.
+        Wraps a LeagueIndividual instance as a GA solution. 
+        to integrate it into a GA framework. Provides methods for fitness 
+        evaluation, mutation, and crossover.
+
+        Args:
+            individual (LeagueIndividual): The LeagueIndividual instance to wrap.
+
+        Raises:
+            NotImplementedError: If random_initial_representation is called.
         """
         self.individual = individual
         super().__init__(repr=individual)  # Required by the abstract Solution base class
