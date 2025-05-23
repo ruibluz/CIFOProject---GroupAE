@@ -7,6 +7,7 @@ from algorithms.GA_crossover import team_crossover, position_crossover
 from algorithms.GA_mutation import mutation_swap_players, mutation_regenerate_team, mutation_balance_teams
 from algorithms.algorithm import genetic_algorithm
 
+# list all selection, crossover and mutation methods
 selection_methods = [sel_roulette, sel_rank, sel_tournament]
 crossover_methods = [team_crossover, position_crossover]
 mutation_methods = [mutation_swap_players, mutation_regenerate_team, mutation_balance_teams]
@@ -14,6 +15,29 @@ mutation_methods = [mutation_swap_players, mutation_regenerate_team, mutation_ba
 def evaluate_all_combinations(players_by_position, team_structure, budget_limit, num_teams,
                                population_size=30, generations=50, runs_per_combo=3,
                                mutation_rate=0.2, xo_prob=0.9, elitism=True, k_tournament=3, verbose=False):
+    
+    """
+    Evaluates all possible combinations of selection, crossover, and mutation methods for a genetic algorithm.
+
+    Args:
+        players_by_position (dict): Dictionary of players by position.
+        team_structure (dict): Dictionary defining the team structure.
+        budget_limit (int): Budget limit for the teams.
+        num_teams (int): Number of teams to generate.
+        population_size (int): Size of the population.
+        generations (int): Number of generations to run the genetic algorithm.
+        runs_per_combo (int): Number of runs for each combination of methods.
+        mutation_rate (float): Mutation rate for the genetic algorithm.
+        xo_prob (float): Crossover probability.
+        elitism (bool): Whether to use elitism in the genetic algorithm.
+        k_tournament (int): Tournament size for selection methods.
+        verbose (bool): Whether to print detailed information.
+
+    Returns:
+        list[dict]: List of dictionaries containing the results for each combination of methods.
+        Each dictionary contains the selection, crossover, mutation methods used,
+        mean fitness, standard deviation of fitness, best fitness, and time taken for the run.
+    """
 
     results = []
 

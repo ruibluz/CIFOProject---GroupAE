@@ -12,6 +12,9 @@ def select_parents(population, method='tournament', num_parents=2, tournament_k=
 
     Returns:
         list[GASolution]: Selected parents.
+
+    Raises:
+        ValueError: If the selection method is not recognized.
     """
     fitness_values = [ind.fitness() for ind in population]
 
@@ -22,4 +25,4 @@ def select_parents(population, method='tournament', num_parents=2, tournament_k=
     elif method == 'roulette':
         return sel_roulette(population, fitness_values, num=num_parents)
     else:
-        raise ValueError(f"❌ Unknown selection method: {method}")
+        raise ValueError(f"Unknown selection method: {method}")
